@@ -1,4 +1,4 @@
-const { Client, GatewayIntentBits, GuildMember, Embed } = require("discord.js");
+const { Client, GatewayIntentBits, GuildMember, Embed, REST, Routes } = require("discord.js");
 const { EmbedBuilder } = require("@discordjs/builders")
 
 const bot = new Client({
@@ -9,6 +9,12 @@ const bot = new Client({
     GatewayIntentBits.GuildMembers,
   ]
 });
+const commands = [
+  {
+    name: "test",
+    description: "a test"
+  }
+]
 
 bot.once("ready", () => {
   console.log("BOT IS ONLINE");
@@ -49,5 +55,25 @@ bot.on("guildMemberRemove", (member) => {
     .setDescription(leaveMsg);
   channel.send({ embeds: [goodbye] });
 });
+
+bot.on('interactionCreate', async action => {
+  if (action.isChatInputCommand() == false) {
+    return;
+  }
+
+  if (action.commandName === 'test') {
+    await action.reply('hi');
+  }
+});
+const rest = new REST({ version: '10' }).setToken(process.env['TOKEN']);
+(async () => {
+  try {
+    await rest.put(Routes.applicationCommands("1049197120562933781"), { body: commands });
+
+    console.log('commands enabled');
+  } catch (error) {
+    console.error(error);
+  }
+})();
 
 bot.login(process.env['TOKEN']);
